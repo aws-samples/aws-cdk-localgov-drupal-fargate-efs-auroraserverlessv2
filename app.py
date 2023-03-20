@@ -7,15 +7,15 @@ from drupal_fargate.drupal_fargate_stack import DrupalFargateStack
 from drupal_fargate.drupal_waf_stack import DrupalWAFStack
 
 app = cdk.App()
-env_cdk = cdk.Environment(account=os.environ["CDK_DEFAULT_ACCOUNT"], region="eu-west-2")
+#env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 
 #DB and FileSystem Stack
-core_stack = DrupalCoreStack(app, "DrupalCoreStack", env=env_cdk)
+core_stack = DrupalCoreStack(app, "DrupalCoreStack")
 
 #Fargate stack - depends on RDS + EFS
-fargate_stack = DrupalFargateStack(app, "DrupalFargateStack", env=env_cdk, core_stack=core_stack)
+fargate_stack = DrupalFargateStack(app, "DrupalFargateStack", core_stack=core_stack)
 
 #WAF Stack
-waf_stack = DrupalWAFStack(app, "DrupalWAFStack", env=env_cdk, fargate_stack=fargate_stack, core_stack=core_stack)
+waf_stack = DrupalWAFStack(app, "DrupalWAFStack", fargate_stack=fargate_stack, core_stack=core_stack)
 
 app.synth()
