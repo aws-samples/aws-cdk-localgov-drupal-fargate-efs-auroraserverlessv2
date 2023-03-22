@@ -18,7 +18,7 @@ import cdk_nag
 
 class DrupalCoreStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, docker_container, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         #create logging bucket

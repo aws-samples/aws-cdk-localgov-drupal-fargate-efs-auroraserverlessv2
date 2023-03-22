@@ -14,7 +14,7 @@ import cdk_nag
 
 class DrupalWAFStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, fargate_stack, core_stack, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, fargate_stack, core_stack, docker_container, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         #Add Cloudfront to front of ALB, with HTTPS

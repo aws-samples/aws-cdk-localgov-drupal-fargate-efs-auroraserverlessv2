@@ -14,7 +14,7 @@ import cdk_nag
 
 class DrupalFargateStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, core_stack, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, core_stack, docker_container, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         #setup default cluster
@@ -31,7 +31,7 @@ class DrupalFargateStack(Stack):
         #Create Drupal container task
         self.container_drupal = self.task_definition.add_container(
             "drupal-container",
-            image=ecs.ContainerImage.from_asset('./drupal_fargate/container/drupal'),
+            image=ecs.ContainerImage.from_asset('./drupal_fargate/container/'+docker_container),
             logging = ecs.AwsLogDriver(
                 stream_prefix = 'drupal-logs',
                 log_retention = logs.RetentionDays.ONE_MONTH
