@@ -9,7 +9,7 @@ from drupal_fargate.drupal_waf_stack import DrupalWAFStack
 app = cdk.App()
 #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 
-docker_contatiner = "drupal-10"
+docker_contatiner = "drupal-9-localgov"
 
 #DB and FileSystem Stack
 core_stack = DrupalCoreStack(app, "DrupalCoreStack"+docker_contatiner, docker_container=docker_contatiner)

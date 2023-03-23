@@ -26,12 +26,22 @@ class DrupalWAFStack(Stack):
                 origin=origins.LoadBalancerV2Origin(
                     fargate_stack.fargate_service.load_balancer,
                     protocol_policy=cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+                    custom_headers={"x-cloudfront-custom-security":"localgovdrupal"}
+                ),
+                allowed_methods=cloudfront.AllowedMethods.ALLOW_ALL,
+                cache_policy=cloudfront.CachePolicy(
+                    self,
+                    "localgov_cache_policy",
+                    header_behavior=cloudfront.CacheHeaderBehavior.allow_list("Origin","CloudFront-Forwarded-Proto","Host"),
+                    cookie_behavior=cloudfront.CacheCookieBehavior.all(),
+                    query_string_behavior=cloudfront.CacheQueryStringBehavior.all(),
+                    enable_accept_encoding_gzip=True,
                 )
             ),
             enable_logging=True,
             log_bucket=core_stack.logging_bucket,
             log_file_prefix="cloudfront-logs",
-            minimum_protocol_version=cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,            
+            minimum_protocol_version=cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
         )
         #create custom IAM role for fargate VPC flow logs
         self.cf_log_role = iam.Role(self, "fargate_cf_role",
