@@ -9,15 +9,36 @@ from drupal_fargate.drupal_waf_stack import DrupalWAFStack
 app = cdk.App()
 #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
 
-docker_contatiner = "drupal-9-localgov"
+docker_container = "drupal-9-localgov"
+
+#if you wish to use a custom domain name - enter your domain and zone details
+domain_name = "localgov.example.com"
+zone = "example.com"
+zone_id = "YOUR-ZONE-ID"
 
 #DB and FileSystem Stack
-core_stack = DrupalCoreStack(app, "DrupalCoreStack"+docker_contatiner, docker_container=docker_contatiner)
+core_stack = DrupalCoreStack(
+    app, "DrupalCoreStack"+docker_container,
+    docker_container=docker_container
+)
 
 #Fargate stack - depends on RDS + EFS
-fargate_stack = DrupalFargateStack(app, "DrupalFargateStack"+docker_contatiner, core_stack=core_stack, docker_container=docker_contatiner)
+fargate_stack = DrupalFargateStack(
+    app,
+    "DrupalFargateStack"+docker_container,
+    core_stack=core_stack,
+    docker_container=docker_container
+)
 
 #WAF Stack
-waf_stack = DrupalWAFStack(app, "DrupalWAFStack"+docker_contatiner, fargate_stack=fargate_stack, core_stack=core_stack, docker_container=docker_contatiner)
+waf_stack = DrupalWAFStack(app,
+    "DrupalWAFStack"+docker_container,
+    fargate_stack=fargate_stack,
+    core_stack=core_stack,
+    docker_container=docker_container,
+    domain_name=domain_name,
+    zone=zone,
+    zone_id=zone_id
+)
 
 app.synth()

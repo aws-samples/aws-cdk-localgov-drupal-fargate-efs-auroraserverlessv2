@@ -3,6 +3,9 @@ from aws_cdk import (
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
     aws_iam as iam,
+    aws_route53 as r53,
+    aws_route53_targets as r53t,
+    aws_certificatemanager as acm,
     Stack,
     Aspects,
     CfnOutput,
@@ -14,8 +17,23 @@ import cdk_nag
 
 class DrupalWAFStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, fargate_stack, core_stack, docker_container, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, fargate_stack, core_stack, docker_container, domain_name, zone, zone_id, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+
+        #custom domain name and certificate
+        self.zone = r53.HostedZone.from_hosted_zone_attributes(
+            self,
+            "drupal-zone",
+            zone_name=zone,
+            hosted_zone_id=zone_id,
+        )
+
+        self.drupal_cert = acm.DnsValidatedCertificate(self, "drupal-cert2",
+            hosted_zone=self.zone,
+            region="us-east-1",
+            domain_name=domain_name,
+            validation=acm.CertificateValidation.from_dns(self.zone)
+        )
 
         #Add Cloudfront to front of ALB, with HTTPS
         #Connect to ALB with HTTP only (no https on ALB)
@@ -38,6 +56,9 @@ class DrupalWAFStack(Stack):
                     enable_accept_encoding_gzip=True,
                 )
             ),
+            price_class=cloudfront.PriceClass.PRICE_CLASS_100,
+            domain_names=[domain_name],
+            certificate=self.drupal_cert,
             enable_logging=True,
             log_bucket=core_stack.logging_bucket,
             log_file_prefix="cloudfront-logs",
@@ -50,6 +71,13 @@ class DrupalWAFStack(Stack):
         #attach permissions
         core_stack.logging_bucket.grant_write(self.cf_log_role,"cloudfront-logs/*")
 
+        self.arecord = r53.CnameRecord(self, "drupal_alias",
+            zone=self.zone,
+            domain_name=self.cloudfront_distro.distribution_domain_name,
+            record_name=domain_name,
+            delete_existing=True
+        )
+
         #import WAF for Cloudfront Construct
         # This construct can only be attached to a configured CloudFront.
         # Only runs in us-east-1 as has scope "CLOUDFRONT"
@@ -58,6 +86,6 @@ class DrupalWAFStack(Stack):
         #)
         
         CfnOutput(self, 'CloudfrontDistribution', value="https://"+self.cloudfront_distro.domain_name)
-        CfnOutput(self, 'CloudfrontDistributionInstallPath', value="https://"+self.cloudfront_distro.domain_name+"/core/install.php")
+        CfnOutput(self, 'CloudfrontCustomDistributionInstallPath', value="https://"+domain_name+"/core/install.php")
 
         Tags.of(self).add('Application','DrupalFargate')

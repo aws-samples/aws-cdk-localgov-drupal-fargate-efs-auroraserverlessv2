@@ -15,6 +15,7 @@ echo " \
 \$settings['trusted_host_patterns'] = [ \
   '^.+\.elb\.amazonaws\.com\$', \
   '^.+\.cloudfront\.net\$', \
+  '^localgov\.example\.com\$', \
   '^localhost\$', \
 ]; \
 \
