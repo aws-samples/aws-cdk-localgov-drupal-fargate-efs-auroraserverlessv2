@@ -5,7 +5,7 @@ apt-get upgrade -y && \
 mkdir /var/www/files && \
 cd /var/www/html && \
 composer create-project localgovdrupal/localgov-project . --no-install && \
-composer require drupal/core:9.5.8 --update-with-all-dependencies && \
+composer require drupal/core:9.5.9 --update-with-all-dependencies && \
 composer install && \
 ln -s /var/www/files /var/www/html/web/sites/default/ && \
 chown -R docker:docker /var/www/html/web/sites/ && \
