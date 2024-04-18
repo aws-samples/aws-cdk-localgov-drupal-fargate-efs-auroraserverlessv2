@@ -1,11 +1,12 @@
 FROM --platform=linux/amd64 localgovdrupal/apache-php:php8.1
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apt-get update -y && \
 apt-get upgrade -y && \
 mkdir /var/www/files && \
 cd /var/www/html && \
-composer create-project localgovdrupal/localgov-project . --no-install && \
-composer require drupal/core:9.5.9 --update-with-all-dependencies && \
+composer create-project localgovdrupal/localgov-project:^3.0 . --no-install && \
+composer require drupal/core:10.2.5 --update-with-all-dependencies && \
 composer install && \
 ln -s /var/www/files /var/www/html/web/sites/default/ && \
 chown -R docker:docker /var/www/html/web/sites/ && \
