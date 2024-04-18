@@ -100,7 +100,7 @@ class DrupalCoreStack(Stack):
             deletion_protection=False,
             removal_policy=RemovalPolicy.DESTROY,
             engine=rds.DatabaseClusterEngine.aurora_mysql(
-                version=rds.AuroraMysqlEngineVersion.VER_3_02_2,
+                version=rds.AuroraMysqlEngineVersion.VER_3_06_0,
             ),
             instance_props=rds.InstanceProps(
                 vpc=self.vpc,
